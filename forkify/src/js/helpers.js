@@ -8,19 +8,30 @@ const timeout = function (s) {
   });
 };
 
-export const AJAX = async function (url, uploadData = undefined) {
+export const AJAX = async function (url, uploadData = undefined, method = 'GET') {
   try {
-    const fetchPro = uploadData
-      ? fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(uploadData),
-        })
-      : fetch(url);
+    let fetchPro;
+    if (uploadData) {
+      fetchPro = fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(uploadData),
+      });
+    } else if (method === 'DELETE') {
+      fetchPro = fetch(url, { method: 'DELETE' });
+    } else {
+      fetchPro = fetch(url);
+    }
 
     const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
-    const data = await res.json();
 
+    // DELETE can return an empty body, so don't try to parse JSON
+    if (method === 'DELETE') {
+      if (!res.ok) throw new Error(`Could not delete recipe (${res.status})`);
+      return;
+    }
+
+    const data = await res.json();
     if (!res.ok) throw new Error(`${data.message} (${res.status})`);
     return data;
   } catch (err) {

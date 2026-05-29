@@ -105,11 +105,32 @@ const controlAddRecipe = async function (newRecipe) {
   }
 };
 
+const controlDeleteRecipe = async function () {
+  try {
+    // Confirm — deletion is permanent
+    if (!confirm('Are you sure you want to delete this recipe?')) return;
+
+    await model.deleteRecipe();
+
+    // Clear the recipe panel and show a message
+    recipeView.renderMessage('Recipe deleted. Search for another one!');
+
+    // Refresh the bookmarks list (it was removed)
+    bookmarksView.render(model.state.bookmarks);
+
+    // Clear the hash so the URL no longer points at a dead recipe
+    window.history.pushState(null, '', ' ');
+  } catch (err) {
+    recipeView.renderError(err.message);
+  }
+};
+
 const init = function () {
   bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServings);
   recipeView.addHandlerAddBookmark(controlAddBookmark);
+  recipeView.addHandlerDeleteRecipe(controlDeleteRecipe);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
   addRecipeView.addHandlerUpload(controlAddRecipe);

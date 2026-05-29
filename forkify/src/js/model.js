@@ -147,3 +147,18 @@ export const uploadRecipe = async function (newRecipe) {
     throw err;
   }
 };
+
+export const deleteRecipe = async function (id = state.recipe.id) {
+  try {
+    await AJAX(`${API_URL}${id}?key=${KEY}`, undefined, 'DELETE');
+
+    // Remove from bookmarks too (uploads get auto-bookmarked)
+    if (state.bookmarks.some(bookmark => bookmark.id === id))
+      deleteBookmark(id);
+
+    // Clear the current recipe from state — it no longer exists
+    state.recipe = {};
+  } catch (err) {
+    throw err;
+  }
+};
