@@ -1,0 +1,17 @@
+# Dependencies
+/node_modules
+
+# Parcel build output & cache
+/dist
+/.parcel-cache
+
+# Logs
+npm-debug.log*
+
+# Environment
+.env
+
+# Editor / OS noise
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
