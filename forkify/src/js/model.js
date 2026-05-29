@@ -1,8 +1,14 @@
-import { API_URL, KEY } from './config.js';
+import { API_URL, RES_PER_PAGE, KEY } from './config.js';
 import { AJAX } from './helpers.js';
 
 export const state = {
   recipe: {},
+  search: {
+    query:'',
+    results: [],
+    page:1,
+    resultsPerPage: RES_PER_PAGE,
+  },
 };
 
 const createRecipeObject = function (data) {
@@ -29,4 +35,27 @@ export const loadRecipe = async function (id) {
     console.error(`${err}`);
     throw err;
   }
+};
+
+export const loadSearchResults = async function (query) {
+    try {
+        state.search.query = query;
+
+        const data = await AJAX(`${API_URL}?search=${query}&key=${KEY}`);
+
+        state.search.results = data.data.recipes.map(rec => {
+            return {
+                id:rec.id,
+                title:rec.title,
+                publisher: rec.publisher,
+                image:rec.image_url,
+                ...(rec.key && {key:rec.key }),
+            };
+        });
+        state.search.page = 1;
+    }
+    catch (err){
+        console.error(`${err}`);
+        throw err;
+    }
 };
